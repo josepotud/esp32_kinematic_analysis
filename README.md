@@ -4,7 +4,7 @@ Este proyecto usa un `ESP32-C3 SuperMini` con un sensor `BMI160` para transmitir
 
 ## Características
 
-- Adquisición de 6 ejes a `100 Hz`.
+- Adquisición de 6 ejes a `200 Hz`.
 - Visualización en tiempo real de acelerómetro, giroscopio, señal fusionada y espectro FFT.
 - Modos de análisis `PCA`, `Magnitud 3D` y `Fusión 6D`.
 - Filtros configurables: suavizado, `high-pass`, `low-pass`, rango FFT y ponderación.
@@ -34,9 +34,11 @@ Archivo: [ESP32-C3 Script.ino](/c:/Users/josel/Documents/Python%20Scripts/esp32_
 El firmware actual:
 
 - Inicializa el `BMI160` por I2C.
-- Envía por USB una línea `CSV` con 6 valores crudos:
-  `ax,ay,az,gx,gy,gz`
-- Envía por BLE un paquete binario de `12 bytes` con esos mismos 6 `int16`.
+- Envía por USB una línea `CSV` con timestamp y 6 valores crudos:
+  `t_esp,ax,ay,az,gx,gy,gz`
+- Envía por BLE un paquete binario de `16 bytes`:
+  `uint32 timestamp + 6 int16`
+- Emite mensajes de diagnóstico periódicos por serie con prefijo `#`.
 
 ### Requisitos en Arduino IDE
 
@@ -57,12 +59,13 @@ Abre `index.html` en `Chrome` o `Edge`.
 - Pulsa `USB` y selecciona el puerto.
 - La web abre el puerto a `115200`.
 - No se envían señales `DTR/RTS`, porque en el `ESP32-C3` con USB nativo eso puede provocar reinicios o modo bootloader.
+- El panel acepta tanto el formato nuevo con timestamp como el formato anterior sin timestamp.
 
 ### BLE
 
 - Pulsa `BLE` y selecciona el dispositivo `ESP32...`.
 - El panel intenta estabilizar la conexión GATT con reintentos.
-- Si el firmware emite binario, lo procesa como paquete de `12 bytes`.
+- Si el firmware emite binario, lo procesa como paquete de `16 bytes` con timestamp o como `12 bytes` si detecta firmware anterior.
 - Si el firmware antiguo emite texto, lo interpreta automáticamente.
 
 ## Compatibilidad de navegador
@@ -92,4 +95,5 @@ En el panel HTML puedes modificar:
 ## Notas
 
 - Si el puerto USB muestra mensajes como `ESP-ROM...`, son mensajes de arranque del chip y se ignoran.
+- Las líneas de diagnóstico que empiezan por `#` también se ignoran en el panel web.
 - Si el sensor no responde, el firmware sigue enviando datos planos para facilitar pruebas de conectividad.
