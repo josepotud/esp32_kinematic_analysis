@@ -1,83 +1,95 @@
-Analizador de Movimiento Cinemático (Wearable DSP)
+# Analizador de Movimiento Cinemático
 
-Este proyecto consiste en un dispositivo wearable equipado con un sensor inercial BMI160 y un microcontrolador ESP32-C3 SuperMini. El sistema transmite datos de movimiento de 6 ejes (Acelerómetro + Giroscopio) a un panel de control web (dashboard.html) a través de USB Serial o Bluetooth LE (BLE) a alta resolución (100Hz).
+Este proyecto usa un `ESP32-C3 SuperMini` con un sensor `BMI160` para transmitir datos inerciales de 6 ejes a una interfaz web en tiempo real. El panel permite conectarse por `USB Serial` o `Bluetooth LE`, visualizar acelerómetro y giroscopio, aplicar filtros DSP y calcular la frecuencia dominante mediante FFT.
 
-El panel web incorpora un motor DSP (Procesamiento de Señal Digital) avanzado que permite limpiar la señal, fusionar los sensores y calcular en tiempo real la Componente Principal (PCA) del movimiento o la Magnitud 3D/6D, extrayendo la frecuencia dominante mediante FFT.
+## Características
 
-🚀 Características Principales
+- Adquisición de 6 ejes a `100 Hz`.
+- Visualización en tiempo real de acelerómetro, giroscopio, señal fusionada y espectro FFT.
+- Modos de análisis `PCA`, `Magnitud 3D` y `Fusión 6D`.
+- Filtros configurables: suavizado, `high-pass`, `low-pass`, rango FFT y ponderación.
+- Exportación de sesiones a `CSV`.
+- Compatibilidad con firmware actual en `CSV` y con firmware antiguo en `JSON`.
+- Compatibilidad con BLE binario de `12 bytes` y con formato legado de texto.
 
-Fusión de Sensores: Capacidad para analizar Acelerómetro, Giroscopio o una fusión 6D de ambos simultáneamente.
+## Hardware
 
-Motor DSP en Tiempo Real: Filtros ajustables Pasa-Altos (High-Pass), Pasa-Bajos (Low-Pass) y suavizado de media móvil.
+- `ESP32-C3 SuperMini`
+- `BMI160`
+- Cable USB con datos
 
-Transmisión Híbrida Optimizada: * BLE: Transmisión de datos en crudo (Binary RAW de 16 bytes) para evitar latencia y pérdida de paquetes.
+## Conexiones I2C
 
-USB: Transmisión en formato CSV con Auto-Reset de señales DTR/RTS.
+| BMI160 | ESP32-C3 |
+|---|---|
+| `VCC` | `3.3V` |
+| `GND` | `GND` |
+| `SCL` | `GPIO 9` |
+| `SDA` | `GPIO 8` |
 
-Sincronización de Reloj: El microcontrolador envía su propio Timestamp para garantizar un análisis de frecuencia milimétricamente exacto sin importar el lag de la red.
+## Firmware
 
-🛠️ 1. Requisitos de Hardware
+Archivo: [ESP32-C3 Script.ino](/c:/Users/josel/Documents/Python%20Scripts/esp32_kinematic_analysis/ESP32-C3%20Script.ino)
 
-Microcontrolador: ESP32-C3 SuperMini.
+El firmware actual:
 
-Sensor: Módulo IMU BMI160 (Acelerómetro + Giroscopio).
+- Inicializa el `BMI160` por I2C.
+- Envía por USB una línea `CSV` con 6 valores crudos:
+  `ax,ay,az,gx,gy,gz`
+- Envía por BLE un paquete binario de `12 bytes` con esos mismos 6 `int16`.
 
-Cableado: Cables flexibles finos (se recomienda silicona AWG 30).
+### Requisitos en Arduino IDE
 
-Conexión al PC: Cable USB-C con soporte para transmisión de datos (no solo carga).
+1. Instala el core `esp32` de Espressif.
+2. Selecciona la placa `ESP32C3 Dev Module`.
+3. Instala la librería `DFRobot_BMI160`.
+4. Activa `USB CDC On Boot`.
+5. Carga `ESP32-C3 Script.ino`.
 
-🔌 2. Esquema de Conexión (I2C a 400kHz)
+## Uso del panel web
 
-| Pin del BMI160 | Pin del ESP32-C3 SuperMini | Función |
-| VCC | 3.3V | Alimentación del sensor |
-| GND | GND | Tierra común |
-| SCL | GPIO 9 | Reloj de I2C |
-| SDA | GPIO 8 | Datos de I2C |
+Archivo: [index.html](/c:/Users/josel/Documents/Python%20Scripts/esp32_kinematic_analysis/index.html)
 
-💡 Consejo para Wearables: Suelda los cables directamente a los agujeros de la placa para que el montaje sea de "perfil bajo" y no abulte ni moleste al llevarlo puesto.
+Abre `index.html` en `Chrome` o `Edge`.
 
-💻 3. Configuración del Firmware (Arduino IDE)
+### USB
 
-Abre Arduino IDE y ve a Archivo > Preferencias. Añade esta URL en el Gestor de URLs Adicionales: https://espressif.github.io/arduino-esp32/package_esp32_index.json
+- Pulsa `USB` y selecciona el puerto.
+- La web abre el puerto a `115200`.
+- No se envían señales `DTR/RTS`, porque en el `ESP32-C3` con USB nativo eso puede provocar reinicios o modo bootloader.
 
-En Herramientas > Placa > Gestor de Tarjetas, instala esp32 de Espressif Systems.
+### BLE
 
-Selecciona tu placa: ESP32C3 Dev Module.
+- Pulsa `BLE` y selecciona el dispositivo `ESP32...`.
+- El panel intenta estabilizar la conexión GATT con reintentos.
+- Si el firmware emite binario, lo procesa como paquete de `12 bytes`.
+- Si el firmware antiguo emite texto, lo interpreta automáticamente.
 
-Ve a Programa > Incluir Librería > Administrar Librerías..., busca e instala DFRobot_BMI160.
+## Compatibilidad de navegador
 
-Asegúrate de que en Herramientas > USB CDC On Boot esté configurado en Enabled.
+- `Windows` y `Android`: pueden funcionar con `Web Serial` y/o `Web Bluetooth` según navegador.
+- `iPhone` y `iPad`: los navegadores basados en WebKit no exponen `Web Serial`, y normalmente tampoco `Web Bluetooth` de forma utilizable para este caso.
+- En iOS esto no es un fallo del proyecto, sino una limitación del navegador/plataforma.
 
-Pega el código .ino del proyecto y pulsa en Subir.
+## Ajustes FFT
 
-🌐 4. Uso del Dashboard Web (dashboard.html)
+En el panel HTML puedes modificar:
 
-El panel de control es un archivo HTML independiente y responsivo. No requiere instalación ni internet activo (excepto la primera vez para cachear la librería Highcharts). Utiliza Google Chrome o Edge.
+- `FFT Mín (Hz)`
+- `FFT Máx (Hz)`
+- `Picos FFT`
 
-Panel de Filtros DSP (Recomendaciones)
+`Picos FFT` controla cuántas frecuencias dominantes se muestran. El valor por defecto se mantiene en `1`, que reproduce el comportamiento anterior.
 
-Señal Base: Usa PCA para movimientos direccionales o Magnitud para vibraciones generales. Elige el sensor en el desplegable (Fusión recomendada para micromovimientos).
+## Grabación
 
-Refresco (s): 0.05 para animaciones fluidas a 20 FPS.
+1. Pulsa `Grabar`.
+2. Realiza el movimiento.
+3. Pulsa `Stop`.
+4. Se descargará un archivo `CSV` con:
+   `Timestamp, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z`
 
-High-Pass (Hz): Ajusta a 0.5 o 1.0 para eliminar la gravedad (1G) y las derivas lentas de la mano.
+## Notas
 
-Low-Pass (Hz): Ajusta a 12 para limpiar el ruido eléctrico manteniendo los temblores humanos reales.
-
-Ponderación: Velocidad (1/f) atenúa el ruido blanco de alta frecuencia resaltando los movimientos físicos reales.
-
-Métodos de Conexión
-
-🔌 Conexión USB: Conecta por cable y selecciona el puerto serie. El panel forzará automáticamente el reinicio de las líneas DTR/RTS para garantizar la lectura fluida del CSV.
-
-🔵 Conexión BLE: Alimenta el guante con batería. El panel cuenta con un sistema de reintentos automáticos de conexión GATT para evitar desconexiones prematuras. (En Android, requiere tener el bluetooth activado).
-
-📊 5. Grabación y Exportación de Datos
-
-Haz clic en el botón rojo 🔴 Grabar.
-
-Realiza el movimiento a medir. Los datos se registrarán a 100Hz en crudo (RAW) sin aplicar los filtros DSP para preservar la calidad original de la señal en las 6 dimensiones.
-
-Haz clic en ⏹️ Stop.
-
-Se descargará automáticamente un archivo CSV con sincronización de reloj (Timestamp, Accel_X, Accel_Y, Accel_Z, Gyro_X, Gyro_Y, Gyro_Z).
+- Si el puerto USB muestra mensajes como `ESP-ROM...`, son mensajes de arranque del chip y se ignoran.
+- Si el sensor no responde, el firmware sigue enviando datos planos para facilitar pruebas de conectividad.

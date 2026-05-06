@@ -42,11 +42,10 @@
         .metric-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
         .metric-value { font-size: 1.5rem; font-weight: 700; color: var(--accent); }
 
-        /* Estilos del Panel DSP */
         .settings-panel { background: var(--card-bg); padding: 16px; border-radius: 10px; border: 1px solid var(--border); display: flex; flex-direction: column; gap: 0; }
         .settings-header { font-size: 0.8rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .settings-content { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-        .setting-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+        .setting-item { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; gap: 12px; }
         .setting-item input, .setting-item select { width: 75px; padding: 4px; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-main); border-radius: 4px; font-family: inherit; text-align: right; outline: none; }
         .toggle-icon { display: none; }
 
@@ -54,7 +53,7 @@
         .console-header { padding: 10px 12px; background: #0f172a; color: #94a3b8; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
         .close-console-btn { background: transparent; border: none; color: #f1f5f9; font-size: 1.2rem; padding: 0; line-height: 1; cursor: pointer; }
         #console { padding: 12px; font-family: 'SFMono-Regular', Consolas, monospace; font-size: 0.75rem; color: var(--console-text); overflow-y: auto; flex: 1; line-height: 1.5; }
-        
+
         .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px; }
         .log-time { color: #64748b; margin-right: 8px; }
         .log-info { color: #3b82f6; }
@@ -66,7 +65,6 @@
         .chart-wrapper { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; position: relative; min-height: 250px; }
         .full-width { grid-column: span 2; }
 
-        /* --- Modo Móvil --- */
         @media (max-width: 900px) {
             header { justify-content: center; text-align: center; }
             .brand { width: 100%; margin-bottom: 4px; }
@@ -81,8 +79,7 @@
             .metrics-container { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; gap: 8px; padding-bottom: 4px; }
             .metric-card { flex: 1; min-width: 110px; padding: 10px; text-align: center; }
             .metric-value { font-size: 1.2rem; }
-            
-            /* Lógica de plegado de ajustes en móvil */
+
             .settings-header { cursor: pointer; padding: 8px 0; }
             .toggle-icon { display: inline-block; transition: transform 0.3s; font-size: 0.7rem; }
             .settings-content { display: none; }
@@ -91,8 +88,7 @@
 
             #console-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; border-radius: 0; z-index: 1000; transform: translateY(100%); transition: transform 0.3s ease-in-out; }
             #console-container.show { transform: translateY(0); }
-            
-            /* Reordenación de gráficos en móvil */
+
             .dashboard-content { display: flex; flex-direction: column; padding: 12px; }
             #c-pca { order: 1; }
             #c-fft { order: 2; }
@@ -100,7 +96,12 @@
             #c-gyro { order: 4; }
             .full-width { grid-column: auto; }
         }
-        @media (max-width: 480px) { header { padding: 12px; } .controls { gap: 6px; } button { padding: 8px 10px; font-size: 0.75rem; flex: 1 1 auto; justify-content: center; } }
+
+        @media (max-width: 480px) {
+            header { padding: 12px; }
+            .controls { gap: 6px; }
+            button { padding: 8px 10px; font-size: 0.75rem; flex: 1 1 auto; justify-content: center; }
+        }
     </style>
 </head>
 <body>
@@ -110,12 +111,12 @@
         <h1>Análisis Cinemático</h1>
     </div>
     <div class="controls">
-        <button onclick="connectUSB()" class="primary"><span>🔌</span> USB</button>
-        <button onclick="connectBLE()"><span>🔵</span> BLE</button>
+        <button onclick="connectUSB()" class="primary"><span>USB</span></button>
+        <button onclick="connectBLE()"><span>BLE</span></button>
         <div style="width: 1px; background: var(--border); margin: 0 4px;" class="desktop-only"></div>
-        <button id="btn-record" onclick="startRecording()" class="record"><span>🔴</span> Grabar</button>
-        <button id="btn-stop" onclick="stopRecording()" disabled><span>⏹️</span> Stop</button>
-        <button onclick="toggleConsole()" class="mobile-only" style="background: var(--console-bg); color: white; border: none;"><span>📜</span> Consola</button>
+        <button id="btn-record" onclick="startRecording()" class="record"><span>REC</span> Grabar</button>
+        <button id="btn-stop" onclick="stopRecording()" disabled><span>STOP</span></button>
+        <button onclick="toggleConsole()" class="mobile-only" style="background: var(--console-bg); color: white; border: none;"><span>LOG</span> Consola</button>
     </div>
 </header>
 
@@ -138,7 +139,7 @@
 
         <div class="settings-panel" id="mobile-settings">
             <div class="settings-header" onclick="document.getElementById('mobile-settings').classList.toggle('open')">
-                ⚙️ Filtros DSP <span class="toggle-icon">▼</span>
+                Filtros DSP <span class="toggle-icon">▼</span>
             </div>
             <div class="settings-content">
                 <div class="setting-item" title="Fuente del sensor">
@@ -192,13 +193,17 @@
                     <label>FFT Máx (Hz)</label>
                     <input type="number" id="cfg-fft-max" value="12" step="1" min="1">
                 </div>
+                <div class="setting-item">
+                    <label>Picos FFT</label>
+                    <input type="number" id="cfg-fft-peaks" value="1" step="1" min="1" max="10">
+                </div>
             </div>
         </div>
 
         <div id="console-container">
             <div class="console-header">
                 <span>Registro de Eventos</span>
-                <button class="mobile-only close-console-btn" onclick="toggleConsole()">✖</button>
+                <button class="mobile-only close-console-btn" onclick="toggleConsole()">×</button>
             </div>
             <div id="console"></div>
         </div>
@@ -213,25 +218,32 @@
 </main>
 
 <script>
-    const FREQ_SAMPLING = 100; // Hz
+    const FREQ_SAMPLING = 100;
+    const ACCEL_SCALE = 16384.0;
+    const GYRO_SCALE = 2000.0 / 32768.0;
+    const BLE_SERVICE_UUID = "6e400001-b5a3-f393-e0a9-e50e24dcca9e";
+    const BLE_TX_UUID = "6e400003-b5a3-f393-e0a9-e50e24dcca9e";
+
     let rawData = { ax: [], ay: [], az: [], gx: [], gy: [], gz: [], t: [] };
     let recordedSession = [];
     let isRecording = false;
     let dataStarted = false;
-    let timeOffset = null; 
+    let timeOffset = null;
     let firstLineLog = false;
+    let lastAnalysisTime = 0;
 
-    const ACCEL_SCALE = 16384.0;
-    const GYRO_SCALE = 2000.0 / 32768.0;
-
-    function getMaxDataPoints() {
-        const windowEl = document.getElementById('cfg-window');
-        const w = windowEl ? (parseFloat(windowEl.value) || 5) : 5;
-        return Math.floor(FREQ_SAMPLING * w);
-    }
+    let usbPort = null;
+    let usbReader = null;
+    let bleDevice = null;
+    let bleCharacteristic = null;
 
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const textCol = isDarkMode ? '#f1f5f9' : '#0f172a';
+
+    function getMaxDataPoints() {
+        const w = parseFloat(document.getElementById('cfg-window')?.value || '5') || 5;
+        return Math.floor(FREQ_SAMPLING * w);
+    }
 
     function log(message, type = 'info') {
         const consoleEl = document.getElementById('console');
@@ -243,27 +255,56 @@
         consoleEl.scrollTop = consoleEl.scrollHeight;
     }
 
-    function toggleConsole() { document.getElementById('console-container').classList.toggle('show'); }
+    function toggleConsole() {
+        document.getElementById('console-container').classList.toggle('show');
+    }
 
-    // CORRECCIÓN CSP
-    const createChartConfig = (title, seriesData) => ({
-        chart: { backgroundColor: 'transparent', animation: false, style: { fontFamily: 'inherit' } },
-        title: { text: title, align: 'left', style: { color: textCol, fontSize: '13px', fontWeight: 'bold' } },
-        xAxis: { type: 'datetime', labels: { enabled: false }, gridLineWidth: 0, lineWidth: 0, tickWidth: 0 },
-        yAxis: { title: { text: null }, gridLineColor: isDarkMode ? '#334155' : '#f1f5f9', labels: { style: { color: '#64748b' } } },
-        legend: { enabled: true, itemStyle: { color: '#94a3b8', fontSize: '10px' } },
-        credits: { enabled: false },
-        tooltip: { enabled: false }, 
-        series: seriesData,
-        plotOptions: { 
-            series: { 
-                marker: { enabled: false }, 
-                lineWidth: 1.5, 
-                states: { hover: { enabled: false } },
-                enableMouseTracking: false 
-            } 
-        }
-    });
+    function browserSupport() {
+        return {
+            serial: typeof navigator !== 'undefined' && 'serial' in navigator,
+            bluetooth: typeof navigator !== 'undefined' && 'bluetooth' in navigator
+        };
+    }
+
+    function getPlatformHint() {
+        const ua = navigator.userAgent || '';
+        if (/iPhone|iPad|iPod/i.test(ua)) return 'ios';
+        if (/Android/i.test(ua)) return 'android';
+        if (/Win/i.test(ua)) return 'windows';
+        if (/Mac/i.test(ua)) return 'mac';
+        return 'other';
+    }
+
+    function resetConnectionState() {
+        dataStarted = false;
+        timeOffset = null;
+        firstLineLog = false;
+    }
+
+    function clampPeaks(value) {
+        return Math.max(1, Math.min(10, parseInt(value, 10) || 1));
+    }
+
+    function createChartConfig(title, seriesData) {
+        return {
+            chart: { backgroundColor: 'transparent', animation: false, style: { fontFamily: 'inherit' } },
+            title: { text: title, align: 'left', style: { color: textCol, fontSize: '13px', fontWeight: 'bold' } },
+            xAxis: { type: 'datetime', labels: { enabled: false }, gridLineWidth: 0, lineWidth: 0, tickWidth: 0 },
+            yAxis: { title: { text: null }, gridLineColor: isDarkMode ? '#334155' : '#f1f5f9', labels: { style: { color: '#64748b' } } },
+            legend: { enabled: true, itemStyle: { color: '#94a3b8', fontSize: '10px' } },
+            credits: { enabled: false },
+            tooltip: { enabled: false },
+            series: seriesData,
+            plotOptions: {
+                series: {
+                    marker: { enabled: false },
+                    lineWidth: 1.5,
+                    states: { hover: { enabled: false } },
+                    enableMouseTracking: false
+                }
+            }
+        };
+    }
 
     const charts = {
         pca: Highcharts.chart('c-pca', createChartConfig('Señal Analizada (Fusión DSP)', [{ name: 'Amplitud', color: '#3b82f6', data: [], type: 'spline' }])),
@@ -272,16 +313,15 @@
         gyro: Highcharts.chart('c-gyro', createChartConfig('Giroscopio (°/s)', [{ name: 'X', color: '#f59e0b', data: [] }, { name: 'Y', color: '#8b5cf6', data: [] }, { name: 'Z', color: '#06b6d4', data: [] }]))
     };
 
-    function processPhysData(t_esp, ax, ay, az, gx, gy, gz) {
-        if (!dataStarted) { 
-            dataStarted = true; 
-            timeOffset = Date.now() - t_esp; 
-            log("Flujo de datos iniciado.", "success"); 
+    function processPhysData(tEsp, ax, ay, az, gx, gy, gz) {
+        if (!dataStarted) {
+            dataStarted = true;
+            timeOffset = Date.now() - tEsp;
+            log("Flujo de datos iniciado.", "success");
         }
-        if (timeOffset === null) timeOffset = Date.now() - t_esp;
+        if (timeOffset === null) timeOffset = Date.now() - tEsp;
 
-        const now = t_esp + timeOffset;
-
+        const now = tEsp + timeOffset;
         rawData.ax.push(ax); rawData.ay.push(ay); rawData.az.push(az);
         rawData.gx.push(gx); rawData.gy.push(gy); rawData.gz.push(gz);
         rawData.t.push(now);
@@ -289,65 +329,75 @@
         if (isRecording) recordedSession.push({ timestamp: new Date(now).toISOString(), ax, ay, az, gx, gy, gz });
 
         const currentMaxPoints = getMaxDataPoints();
-        if (rawData.ax.length > currentMaxPoints) { 
+        if (rawData.ax.length > currentMaxPoints) {
             const overflow = rawData.ax.length - currentMaxPoints;
-            Object.keys(rawData).forEach(k => rawData[k].splice(0, overflow)); 
+            Object.keys(rawData).forEach((k) => rawData[k].splice(0, overflow));
         }
 
         const shift = charts.acc.series[0].data.length >= currentMaxPoints;
         charts.acc.series[0].addPoint([now, ax], false, shift);
         charts.acc.series[1].addPoint([now, ay], false, shift);
-        charts.acc.series[2].addPoint([now, az], true, shift); 
-
+        charts.acc.series[2].addPoint([now, az], true, shift);
         charts.gyro.series[0].addPoint([now, gx], false, shift);
         charts.gyro.series[1].addPoint([now, gy], false, shift);
-        charts.gyro.series[2].addPoint([now, gz], true, shift); 
+        charts.gyro.series[2].addPoint([now, gz], true, shift);
     }
 
     function processUSBString(line) {
-        line = line.trim();
+        line = (line || '').trim().replace('\r', '');
         if (!line) return;
 
-        // Limpiar el caracter \r por si viene desde Windows
-        line = line.replace('\r', '');
-
-        // RETROCOMPATIBILIDAD CON FIRMWARE ANTIGUO (JSON)
         if (line.startsWith('{')) {
             try {
                 const d = JSON.parse(line);
-                if (!firstLineLog) { log("Detectado firmware antiguo (JSON).", "info"); firstLineLog = true; }
-                
-                // Mapeamos los datos con precaución por si falta el giroscopio en el código viejo
-                // NOTA: El firmware antiguo envía en float ya procesado (Gs y °/s)
-                const ax = d.ax !== undefined ? d.ax : 0;
-                const ay = d.ay !== undefined ? d.ay : 0;
-                const az = d.az !== undefined ? d.az : 0;
-                const gx = d.gx !== undefined ? d.gx : 0;
-                const gy = d.gy !== undefined ? d.gy : 0;
-                const gz = d.gz !== undefined ? d.gz : 0;
-                
-                processPhysData(Date.now(), ax, ay, az, gx, gy, gz);
+                if (!firstLineLog) {
+                    log("Detectado firmware antiguo (JSON).", "info");
+                    firstLineLog = true;
+                }
+                processPhysData(Date.now(), d.ax ?? 0, d.ay ?? 0, d.az ?? 0, d.gx ?? 0, d.gy ?? 0, d.gz ?? 0);
             } catch (e) {
                 console.warn("[USB JSON ERROR]", e);
             }
-        } 
-        // PARSEO DE FIRMWARE NUEVO (CSV)
-        else {
-            const parts = line.split(',');
-            if (parts.length === 7) {
-                if (!firstLineLog) { log("Detectado firmware nuevo (CSV).", "info"); firstLineLog = true; }
-                processPhysData(parseInt(parts[0]), parseInt(parts[1])/ACCEL_SCALE, parseInt(parts[2])/ACCEL_SCALE, parseInt(parts[3])/ACCEL_SCALE, parseInt(parts[4])*GYRO_SCALE, parseInt(parts[5])*GYRO_SCALE, parseInt(parts[6])*GYRO_SCALE);
-            } else if (parts.length === 6) {
-                if (!firstLineLog) { log("Detectado firmware nuevo (CSV sin Timestamp).", "info"); firstLineLog = true; }
-                processPhysData(Date.now(), parseInt(parts[0])/ACCEL_SCALE, parseInt(parts[1])/ACCEL_SCALE, parseInt(parts[2])/ACCEL_SCALE, parseInt(parts[3])*GYRO_SCALE, parseInt(parts[4])*GYRO_SCALE, parseInt(parts[5])*GYRO_SCALE);
-            } else {
-                if (!dataStarted) console.warn(`[USB IGNORADO] Mensaje de sistema o corrupto: ${line}`);
+            return;
+        }
+
+        const parts = line.split(',');
+        if (parts.length === 7) {
+            if (!firstLineLog) {
+                log("Detectado firmware nuevo (CSV).", "info");
+                firstLineLog = true;
             }
+            processPhysData(
+                parseInt(parts[0], 10),
+                parseInt(parts[1], 10) / ACCEL_SCALE,
+                parseInt(parts[2], 10) / ACCEL_SCALE,
+                parseInt(parts[3], 10) / ACCEL_SCALE,
+                parseInt(parts[4], 10) * GYRO_SCALE,
+                parseInt(parts[5], 10) * GYRO_SCALE,
+                parseInt(parts[6], 10) * GYRO_SCALE
+            );
+        } else if (parts.length === 6) {
+            if (!firstLineLog) {
+                log("Detectado firmware actual (CSV sin timestamp).", "info");
+                firstLineLog = true;
+            }
+            processPhysData(
+                Date.now(),
+                parseInt(parts[0], 10) / ACCEL_SCALE,
+                parseInt(parts[1], 10) / ACCEL_SCALE,
+                parseInt(parts[2], 10) / ACCEL_SCALE,
+                parseInt(parts[3], 10) * GYRO_SCALE,
+                parseInt(parts[4], 10) * GYRO_SCALE,
+                parseInt(parts[5], 10) * GYRO_SCALE
+            );
+        } else if (!dataStarted) {
+            console.warn(`[USB IGNORADO] Mensaje de sistema o corrupto: ${line}`);
         }
     }
 
     function startRecording() {
-        recordedSession = []; isRecording = true;
+        recordedSession = [];
+        isRecording = true;
         document.getElementById('btn-record').disabled = true;
         document.getElementById('btn-record').classList.add('active');
         document.getElementById('btn-stop').disabled = false;
@@ -360,22 +410,24 @@
         document.getElementById('btn-record').classList.remove('active');
         document.getElementById('btn-stop').disabled = true;
         if (recordedSession.length === 0) return;
-        
+
         const headers = ["Timestamp", "Accel_X", "Accel_Y", "Accel_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"];
-        const rows = recordedSession.map(s => [s.timestamp, s.ax, s.ay, s.az, s.gx, s.gy, s.gz]);
-        let csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(e => e.join(",")).join("\n");
+        const rows = recordedSession.map((s) => [s.timestamp, s.ax, s.ay, s.az, s.gx, s.gy, s.gz]);
+        const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map((e) => e.join(",")).join("\n");
         const link = document.createElement("a");
         link.setAttribute("href", encodeURI(csvContent));
         link.setAttribute("download", `captura_${Date.now()}.csv`);
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
         log("CSV descargado.", "success");
     }
 
     function applyMovingAverage(data, windowSize) {
         if (windowSize <= 1) return data;
-        let res = [];
+        const res = [];
         for (let i = 0; i < data.length; i++) {
-            let start = Math.max(0, i - windowSize + 1);
+            const start = Math.max(0, i - windowSize + 1);
             let sum = 0;
             for (let j = start; j <= i; j++) sum += data[j];
             res.push(sum / (i - start + 1));
@@ -384,260 +436,304 @@
     }
 
     function applyIIRFilter(data, cutoff, type, dt) {
-        if (!cutoff || cutoff <= 0 || cutoff >= 1/(2*dt)) return data;
-        let rc = 1.0 / (cutoff * 2 * Math.PI);
-        let res = [];
+        if (!data.length || !cutoff || cutoff <= 0 || cutoff >= 1 / (2 * dt)) return data;
+        const rc = 1.0 / (cutoff * 2 * Math.PI);
+        const res = [];
         if (type === 'low') {
-            res.push(data[0]); 
-            let alpha = dt / (rc + dt);
-            for (let i = 1; i < data.length; i++) res.push(res[i-1] + alpha * (data[i] - res[i-1]));
+            res.push(data[0]);
+            const alpha = dt / (rc + dt);
+            for (let i = 1; i < data.length; i++) res.push(res[i - 1] + alpha * (data[i] - res[i - 1]));
         } else if (type === 'high') {
-            res.push(0); 
-            let alpha = rc / (rc + dt);
-            for (let i = 1; i < data.length; i++) res.push(alpha * (res[i-1] + data[i] - data[i-1]));
+            res.push(0);
+            const alpha = rc / (rc + dt);
+            for (let i = 1; i < data.length; i++) res.push(alpha * (res[i - 1] + data[i] - data[i - 1]));
         }
         return res;
     }
 
-    let lastAnalysisTime = 0;
+    function findDominantPeaks(spectrum, count) {
+        if (!spectrum.length) return [];
+        const peaks = [];
+        for (let i = 0; i < spectrum.length; i++) {
+            const current = spectrum[i];
+            const left = i > 0 ? spectrum[i - 1][1] : -Infinity;
+            const right = i < spectrum.length - 1 ? spectrum[i + 1][1] : -Infinity;
+            if (current[1] >= left && current[1] >= right && current[1] > 0) peaks.push(current);
+        }
+        const source = peaks.length ? peaks : spectrum;
+        return source.slice().sort((a, b) => b[1] - a[1]).slice(0, count);
+    }
 
-    // --- Loop Principal DSP ---
     setInterval(() => {
         if (rawData.ax.length < 32) return;
-        
+
         const refreshMs = (parseFloat(document.getElementById('cfg-refresh').value) || 0.05) * 1000;
         const now = Date.now();
         if (now - lastAnalysisTime < refreshMs) return;
         lastAnalysisTime = now;
 
-        const n_total = rawData.ax.length;
+        const nTotal = rawData.ax.length;
         const mode = document.getElementById('cfg-mode').value;
         const sensorSource = document.getElementById('cfg-sensor').value;
-        const smoothWin = parseInt(document.getElementById('cfg-smooth').value) || 1;
+        const smoothWin = parseInt(document.getElementById('cfg-smooth').value, 10) || 1;
         const hpFreq = parseFloat(document.getElementById('cfg-hp').value) || 0;
         const lpFreq = parseFloat(document.getElementById('cfg-lp').value) || 12;
         const fftMin = parseFloat(document.getElementById('cfg-fft-min').value) || 0;
         const fftMax = parseFloat(document.getElementById('cfg-fft-max').value) || 12;
-        const fftWeight = parseInt(document.getElementById('cfg-fft-weight').value) || 1;
+        const fftWeight = parseInt(document.getElementById('cfg-fft-weight').value, 10) || 1;
         const windowSec = parseFloat(document.getElementById('cfg-window').value) || 5;
-        
-        const timeSpanMs = rawData.t[n_total - 1] - rawData.t[0];
-        const actualFS = timeSpanMs > 0 ? (n_total / timeSpanMs) * 1000 : FREQ_SAMPLING;
-        const dt = 1.0 / actualFS;
+        const fftPeakCount = clampPeaks(document.getElementById('cfg-fft-peaks').value);
 
-        const pointsToAnalyze = Math.min(n_total, Math.floor(windowSec * actualFS));
+        const timeSpanMs = rawData.t[nTotal - 1] - rawData.t[0];
+        const actualFS = timeSpanMs > 0 ? (nTotal / timeSpanMs) * 1000 : FREQ_SAMPLING;
+        const dt = 1.0 / actualFS;
+        const pointsToAnalyze = Math.min(nTotal, Math.floor(windowSec * actualFS));
         if (pointsToAnalyze < 32) return;
 
-        // Selección de Canales y Fusión
-        const t_slice = rawData.t.slice(-pointsToAnalyze);
+        const tSlice = rawData.t.slice(-pointsToAnalyze);
         let channels = [];
-        
-        const gyroScale = 100.0; 
+        const gyroScale = 100.0;
 
         if (sensorSource === 'acc') {
             channels.push(rawData.ax.slice(-pointsToAnalyze), rawData.ay.slice(-pointsToAnalyze), rawData.az.slice(-pointsToAnalyze));
         } else if (sensorSource === 'gyro') {
             channels.push(rawData.gx.slice(-pointsToAnalyze), rawData.gy.slice(-pointsToAnalyze), rawData.gz.slice(-pointsToAnalyze));
-        } else if (sensorSource === 'both') {
+        } else {
             channels.push(
                 rawData.ax.slice(-pointsToAnalyze), rawData.ay.slice(-pointsToAnalyze), rawData.az.slice(-pointsToAnalyze),
-                rawData.gx.slice(-pointsToAnalyze).map(v => v/gyroScale), 
-                rawData.gy.slice(-pointsToAnalyze).map(v => v/gyroScale), 
-                rawData.gz.slice(-pointsToAnalyze).map(v => v/gyroScale)
+                rawData.gx.slice(-pointsToAnalyze).map((v) => v / gyroScale),
+                rawData.gy.slice(-pointsToAnalyze).map((v) => v / gyroScale),
+                rawData.gz.slice(-pointsToAnalyze).map((v) => v / gyroScale)
             );
         }
 
-        channels = channels.map(ch => applyIIRFilter(applyIIRFilter(applyMovingAverage(ch, smoothWin), lpFreq, 'low', dt), hpFreq, 'high', dt));
+        channels = channels.map((ch) => applyIIRFilter(applyIIRFilter(applyMovingAverage(ch, smoothWin), lpFreq, 'low', dt), hpFreq, 'high', dt));
 
         let signalToAnalyze = [];
         const n = pointsToAnalyze;
-        const dims = channels.length; 
+        const dims = channels.length;
 
         if (mode === 'pca') {
             const centered = [];
             for (let i = 0; i < n; i++) {
-                let row = [];
+                const row = [];
                 for (let d = 0; d < dims; d++) row.push(channels[d][i]);
                 centered.push(row);
             }
 
             let ev = new Array(dims).fill(1);
-            for(let i=0; i<8; i++) {
-                let next_ev = new Array(dims).fill(0);
-                for(let r=0; r<dims; r++) {
-                    for(let c=0; c<dims; c++) {
-                        let cov_rc = 0;
-                        for(let row=0; row<n; row++) cov_rc += (centered[row][r] * centered[row][c]) / (n-1);
-                        next_ev[r] += cov_rc * ev[c];
+            for (let i = 0; i < 8; i++) {
+                const nextEv = new Array(dims).fill(0);
+                for (let r = 0; r < dims; r++) {
+                    for (let c = 0; c < dims; c++) {
+                        let cov = 0;
+                        for (let row = 0; row < n; row++) cov += (centered[row][r] * centered[row][c]) / (n - 1);
+                        nextEv[r] += cov * ev[c];
                     }
                 }
-                const norm = Math.sqrt(next_ev.reduce((s, x) => s + x*x, 0));
-                ev = next_ev.map(x => x / (norm || 1));
+                const norm = Math.sqrt(nextEv.reduce((s, x) => s + x * x, 0));
+                ev = nextEv.map((x) => x / (norm || 1));
             }
-            signalToAnalyze = centered.map(r => r.reduce((s, v, j) => s + v * ev[j], 0));
-            
+            signalToAnalyze = centered.map((r) => r.reduce((s, v, j) => s + v * ev[j], 0));
             document.getElementById('m-axis-label').innerText = "Vector PCA";
-            document.getElementById('m-axis').innerText = dims === 3 ? 
-                `[${ev[0].toFixed(2)}, ${ev[1].toFixed(2)}, ${ev[2].toFixed(2)}]` : `Vector 6D Fusionado`;
-
-        } else if (mode === 'mag') {
-            let mag_raw = [];
-            for(let i=0; i<n; i++) {
+            document.getElementById('m-axis').innerText = dims === 3 ? `[${ev[0].toFixed(2)}, ${ev[1].toFixed(2)}, ${ev[2].toFixed(2)}]` : `Vector 6D Fusionado`;
+        } else {
+            const magRaw = [];
+            for (let i = 0; i < n; i++) {
                 let sumSq = 0;
-                for(let d=0; d<dims; d++) sumSq += (channels[d][i] * channels[d][i]);
-                mag_raw.push(Math.sqrt(sumSq));
+                for (let d = 0; d < dims; d++) sumSq += channels[d][i] * channels[d][i];
+                magRaw.push(Math.sqrt(sumSq));
             }
-            signalToAnalyze = mag_raw;
+            signalToAnalyze = magRaw;
             document.getElementById('m-axis-label').innerText = "Métrica";
             document.getElementById('m-axis').innerText = dims === 3 ? `Magnitud 3D` : `Magnitud 6D`;
         }
 
-        charts.pca.series[0].setData(signalToAnalyze.map((v, i) => [t_slice[i], v]), true, false, false);
+        charts.pca.series[0].setData(signalToAnalyze.map((v, i) => [tSlice[i], v]), true, false, false);
 
-        // 5. Cálculo FFT
         const fftLen = Math.pow(2, Math.floor(Math.log2(signalToAnalyze.length)));
         const signal = signalToAnalyze.slice(-fftLen);
-        for (let i = 0; i < fftLen; i++) signal[i] = signal[i] * (0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftLen - 1))));
+        for (let i = 0; i < fftLen; i++) {
+            signal[i] = signal[i] * (0.5 * (1 - Math.cos((2 * Math.PI * i) / (fftLen - 1))));
+        }
 
         const spectrum = [];
-        let maxP = 0, domF = 0;
-
         for (let k = 0; k < fftLen / 2; k++) {
-            let re = 0, im = 0;
+            let re = 0;
+            let im = 0;
             for (let t = 0; t < fftLen; t++) {
                 const angle = (2 * Math.PI * k * t) / fftLen;
                 re += signal[t] * Math.cos(angle);
                 im -= signal[t] * Math.sin(angle);
             }
-            
-            let mag = Math.sqrt(re*re + im*im);
+
+            let mag = Math.sqrt(re * re + im * im);
             const freq = k * (actualFS / fftLen);
-            
             if (freq > 0) {
-                if (fftWeight === 1) mag = mag / freq;           
-                else if (fftWeight === 2) mag = mag / (freq * freq); 
+                if (fftWeight === 1) mag /= freq;
+                else if (fftWeight === 2) mag /= (freq * freq);
             }
-            
-            if (freq >= fftMin && freq <= fftMax) {
-                spectrum.push([freq, mag]);
-                if (k > 0 && mag > maxP) { maxP = mag; domF = freq; }
-            }
+            if (freq >= fftMin && freq <= fftMax) spectrum.push([freq, mag]);
         }
 
+        const dominantPeaks = findDominantPeaks(spectrum, fftPeakCount);
         charts.fft.xAxis[0].setExtremes(fftMin, fftMax, false);
         charts.fft.series[0].setData(spectrum, true);
-        document.getElementById('m-hz').innerText = domF.toFixed(2) + " Hz";
-        document.getElementById('m-pwr').innerText = maxP.toFixed(2);
+        document.getElementById('m-hz').innerText = dominantPeaks.length ? dominantPeaks.map(([freq]) => `${freq.toFixed(2)} Hz`).join(' | ') : "0.00 Hz";
+        document.getElementById('m-pwr').innerText = dominantPeaks.length ? dominantPeaks.map(([, mag]) => mag.toFixed(2)).join(' | ') : "0.00";
     }, 50);
 
-    // --- Conectividad ---
+    async function closeUSBPort() {
+        if (usbReader) {
+            try { await usbReader.cancel(); } catch (_) {}
+            try { usbReader.releaseLock(); } catch (_) {}
+            usbReader = null;
+        }
+        if (usbPort) {
+            try { await usbPort.close(); } catch (_) {}
+            usbPort = null;
+        }
+    }
+
     async function connectUSB() {
         try {
+            const support = browserSupport();
+            const platform = getPlatformHint();
+            if (!support.serial) {
+                log(platform === 'ios'
+                    ? "Este navegador en iPhone/iPad no soporta Web Serial. Usa BLE o un navegador de escritorio compatible."
+                    : "Este navegador no soporta Web Serial.", "error");
+                return;
+            }
+
+            if (usbPort?.readable) {
+                log("Ya hay una conexión USB activa.", "warning");
+                return;
+            }
+
             console.log("[DEBUG USB] --- Iniciando solicitud de conexión ---");
             log("Solicitando puerto serie USB...", "info");
-            const port = await navigator.serial.requestPort();
-            
-            console.log("[DEBUG USB] Puerto abierto a 115200");
-            await port.open({ baudRate: 115200 });
-
-            // ELIMINADO port.setSignals(). Esto evita el reinicio en ESP32-C3 y permite leer
-            // directamente el flujo ininterrumpido tal cual se usaba en dashboard_serial.html
-            
+            usbPort = await navigator.serial.requestPort();
+            await usbPort.open({ baudRate: 115200 });
             log("Puerto abierto. Escuchando flujo de datos...", "success");
-            
-            dataStarted = false;
-            timeOffset = null; 
-            firstLineLog = false;
+            resetConnectionState();
 
             const decoder = new TextDecoderStream();
-            port.readable.pipeTo(decoder.writable);
-            const reader = decoder.readable.getReader();
+            usbPort.readable.pipeTo(decoder.writable).catch(() => {});
+            usbReader = decoder.readable.getReader();
             let buf = "";
-            
-            console.log("[DEBUG USB] Bucle de lectura escuchando...");
 
+            console.log("[DEBUG USB] Bucle de lectura escuchando...");
             while (true) {
-                const { value, done } = await reader.read();
+                const { value, done } = await usbReader.read();
                 if (done) break;
-                
                 buf += value;
                 const lines = buf.split(/\r?\n/);
-                buf = lines.pop(); // Guardar trozo incompleto
-                
-                for (let i=0; i<lines.length; i++) {
-                    processUSBString(lines[i]);
-                }
+                buf = lines.pop();
+                for (const line of lines) processUSBString(line);
             }
-        } catch (err) { 
+        } catch (err) {
             console.error("[DEBUG USB] Error capturado:", err);
-            log("Error USB: " + err.message, "error"); 
+            log("Error USB: " + err.message, "error");
+        } finally {
+            await closeUSBPort();
         }
     }
 
     async function connectBLE() {
         try {
+            const support = browserSupport();
+            const platform = getPlatformHint();
+            if (!support.bluetooth) {
+                log(platform === 'ios'
+                    ? "Este navegador en iPhone/iPad no expone Web Bluetooth. Usa una app nativa o un navegador de escritorio/Android compatible."
+                    : "Este navegador no soporta Web Bluetooth.", "error");
+                return;
+            }
+
+            if (bleDevice?.gatt?.connected) {
+                log("Ya hay una conexión BLE activa.", "warning");
+                return;
+            }
+
             log("Escaneando dispositivos BLE...");
-            const device = await navigator.bluetooth.requestDevice({
+            bleDevice = await navigator.bluetooth.requestDevice({
                 filters: [{ namePrefix: "ESP32" }],
-                optionalServices: ["6e400001-b5a3-f393-e0a9-e50e24dcca9e"]
+                optionalServices: [BLE_SERVICE_UUID]
             });
 
-            device.addEventListener('gattserverdisconnected', () => { log("Conexión BLE cortada.", "error"); });
+            bleDevice.addEventListener('gattserverdisconnected', () => {
+                bleCharacteristic = null;
+                log("Conexión BLE cortada.", "error");
+            });
 
             let server;
             let service;
             let tx;
             let attempts = 3;
 
-            // Bucle de reintentos para estabilizar conexión GATT en Android/Windows
             while (attempts > 0) {
                 try {
                     log(`Conectando al servidor GATT... (Intento ${4 - attempts}/3)`, "info");
-                    server = await device.gatt.connect();
-                    await new Promise(resolve => setTimeout(resolve, 1000)); 
+                    server = await bleDevice.gatt.connect();
+                    await new Promise((resolve) => setTimeout(resolve, 1000));
                     if (!server.connected) throw new Error("Desconectado inmediatamente");
-
-                    service = await server.getPrimaryService("6e400001-b5a3-f393-e0a9-e50e24dcca9e");
-                    tx = await service.getCharacteristic("6e400003-b5a3-f393-e0a9-e50e24dcca9e");
+                    service = await server.getPrimaryService(BLE_SERVICE_UUID);
+                    tx = await service.getCharacteristic(BLE_TX_UUID);
                     break;
                 } catch (err) {
                     attempts--;
                     if (attempts === 0) throw err;
                     log(`Intento fallido: ${err.message}. Reintentando en 1.5s...`, "warning");
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    await new Promise((resolve) => setTimeout(resolve, 1500));
                 }
             }
-            
+
             await tx.startNotifications();
-            dataStarted = false;
-            timeOffset = null; 
-            firstLineLog = false;
+            bleCharacteristic = tx;
+            resetConnectionState();
             log("BLE suscrito. Recibiendo datos...", "success");
 
             tx.addEventListener('characteristicvaluechanged', (e) => {
-                const view = e.target.value; 
-                
+                const view = e.target.value;
                 if (!firstLineLog) {
-                    log("Recibido primer paquete BLE (" + view.byteLength + " bytes)", "info");
+                    log(`Recibido primer paquete BLE (${view.byteLength} bytes)`, "info");
                     firstLineLog = true;
                 }
 
                 if (view.byteLength === 16) {
-                    processPhysData(view.getUint32(0, true), view.getInt16(4, true)/ACCEL_SCALE, view.getInt16(6, true)/ACCEL_SCALE, view.getInt16(8, true)/ACCEL_SCALE, view.getInt16(10, true)*GYRO_SCALE, view.getInt16(12, true)*GYRO_SCALE, view.getInt16(14, true)*GYRO_SCALE);
+                    processPhysData(
+                        view.getUint32(0, true),
+                        view.getInt16(4, true) / ACCEL_SCALE,
+                        view.getInt16(6, true) / ACCEL_SCALE,
+                        view.getInt16(8, true) / ACCEL_SCALE,
+                        view.getInt16(10, true) * GYRO_SCALE,
+                        view.getInt16(12, true) * GYRO_SCALE,
+                        view.getInt16(14, true) * GYRO_SCALE
+                    );
                 } else if (view.byteLength === 12) {
-                    processPhysData(Date.now(), view.getInt16(0, true)/ACCEL_SCALE, view.getInt16(2, true)/ACCEL_SCALE, view.getInt16(4, true)/ACCEL_SCALE, view.getInt16(6, true)*GYRO_SCALE, view.getInt16(8, true)*GYRO_SCALE, view.getInt16(10, true)*GYRO_SCALE);
+                    processPhysData(
+                        Date.now(),
+                        view.getInt16(0, true) / ACCEL_SCALE,
+                        view.getInt16(2, true) / ACCEL_SCALE,
+                        view.getInt16(4, true) / ACCEL_SCALE,
+                        view.getInt16(6, true) * GYRO_SCALE,
+                        view.getInt16(8, true) * GYRO_SCALE,
+                        view.getInt16(10, true) * GYRO_SCALE
+                    );
                 } else {
-                    // RETROCOMPATIBILIDAD BLE: El firmware antiguo manda JSON como texto
                     try {
-                        const decoder = new TextDecoder();
-                        const text = decoder.decode(view);
+                        const text = new TextDecoder().decode(view);
                         processUSBString(text);
                     } catch (err) {
                         console.warn("Error descodificando texto BLE", err);
                     }
                 }
             });
-        } catch (err) { log("Error BLE: " + err.message, "error"); }
+        } catch (err) {
+            log("Error BLE: " + err.message, "error");
+            bleCharacteristic = null;
+        }
     }
 </script>
 </body>
