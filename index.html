@@ -124,6 +124,10 @@
     <aside>
         <div class="metrics-container">
             <div class="metric-card">
+                <div class="metric-label">ID Paciente</div>
+                <input type="text" id="patient-id" placeholder="ID-000" style="width: 100%; border: none; background: transparent; color: var(--accent); font-size: 1.2rem; font-weight: 700; outline: none; padding: 0;">
+            </div>
+            <div class="metric-card">
                 <div class="metric-label">Freq. Dominante</div>
                 <div id="m-hz" class="metric-value">0.00 Hz</div>
             </div>
@@ -227,6 +231,8 @@
     let rawData = { ax: [], ay: [], az: [], gx: [], gy: [], gz: [], t: [] };
     let recordedSession = [];
     let isRecording = false;
+    let recordingStartTime = null;
+    let currentPatientId = "";
     let dataStarted = false;
     let timeOffset = null;
     let firstLineLog = false;
@@ -325,8 +331,15 @@
         rawData.ax.push(ax); rawData.ay.push(ay); rawData.az.push(az);
         rawData.gx.push(gx); rawData.gy.push(gy); rawData.gz.push(gz);
         rawData.t.push(now);
-
-        if (isRecording) recordedSession.push({ timestamp: new Date(now).toISOString(), ax, ay, az, gx, gy, gz });
+        
+        if (isRecording) {
+            recordedSession.push({ 
+                timestamp: new Date(now).toISOString(), 
+                patientId: currentPatientId,
+                startTime: recordingStartTime,
+                ax, ay, az, gx, gy, gz 
+            });
+        }
 
         const currentMaxPoints = getMaxDataPoints();
         if (rawData.ax.length > currentMaxPoints) {
@@ -396,12 +409,14 @@
     }
 
     function startRecording() {
+        currentPatientId = document.getElementById('patient-id').value || "ANONIMO";
+        recordingStartTime = new Date().toLocaleString();
         recordedSession = [];
         isRecording = true;
         document.getElementById('btn-record').disabled = true;
         document.getElementById('btn-record').classList.add('active');
         document.getElementById('btn-stop').disabled = false;
-        log("Grabación iniciada...", "warning");
+        log(`Grabación iniciada para Paciente: ${currentPatientId}`, "warning");
     }
 
     function stopRecording() {
@@ -411,16 +426,17 @@
         document.getElementById('btn-stop').disabled = true;
         if (recordedSession.length === 0) return;
 
-        const headers = ["Timestamp", "Accel_X", "Accel_Y", "Accel_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"];
-        const rows = recordedSession.map((s) => [s.timestamp, s.ax, s.ay, s.az, s.gx, s.gy, s.gz]);
+        const headers = ["Timestamp", "ID_Paciente", "Inicio_Grabacion", "Accel_X", "Accel_Y", "Accel_Z", "Gyro_X", "Gyro_Y", "Gyro_Z"];
+        const rows = recordedSession.map((s) => [s.timestamp, s.patientId, s.startTime, s.ax, s.ay, s.az, s.gx, s.gy, s.gz]);
         const csvContent = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map((e) => e.join(",")).join("\n");
         const link = document.createElement("a");
         link.setAttribute("href", encodeURI(csvContent));
-        link.setAttribute("download", `captura_${Date.now()}.csv`);
+        const filename = `captura_${currentPatientId}_${Date.now()}.csv`;
+        link.setAttribute("download", filename);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        log("CSV descargado.", "success");
+        log(`CSV descargado: ${filename}`, "success");
     }
 
     function applyMovingAverage(data, windowSize) {
