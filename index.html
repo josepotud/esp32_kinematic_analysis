@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizador de Movimiento Cinemático</title>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="highcharts.js"></script>
     <style>
         :root {
             --bg-primary: #ffffff; --bg-secondary: #f8fafc; --card-bg: #ffffff;
@@ -312,12 +312,23 @@
         };
     }
 
-    const charts = {
-        pca: Highcharts.chart('c-pca', createChartConfig('Señal Analizada (Fusión DSP)', [{ name: 'Amplitud', color: '#3b82f6', data: [], type: 'spline' }])),
-        fft: Highcharts.chart('c-fft', { ...createChartConfig('Análisis de Frecuencia (FFT)', [{ name: 'Densidad Espectral', color: '#16a34a', data: [], type: 'area' }]), xAxis: { labels: { style: { color: '#64748b' } }, title: { text: 'Hz', style: { color: '#64748b' } } } }),
-        acc: Highcharts.chart('c-acc', createChartConfig('Acelerómetro (G)', [{ name: 'X', color: '#ef4444', data: [] }, { name: 'Y', color: '#22c55e', data: [] }, { name: 'Z', color: '#3b82f6', data: [] }])),
-        gyro: Highcharts.chart('c-gyro', createChartConfig('Giroscopio (°/s)', [{ name: 'X', color: '#f59e0b', data: [] }, { name: 'Y', color: '#8b5cf6', data: [] }, { name: 'Z', color: '#06b6d4', data: [] }]))
-    };
+    let charts = { pca: null, fft: null, acc: null, gyro: null };
+
+    function initCharts() {
+        if (typeof Highcharts !== 'undefined') {
+            charts.pca = Highcharts.chart('c-pca', createChartConfig('Señal Analizada (Fusión DSP)', [{ name: 'Amplitud', color: '#3b82f6', data: [], type: 'spline' }]));
+            charts.fft = Highcharts.chart('c-fft', { ...createChartConfig('Análisis de Frecuencia (FFT)', [{ name: 'Densidad Espectral', color: '#16a34a', data: [], type: 'area' }]), xAxis: { labels: { style: { color: '#64748b' } }, title: { text: 'Hz', style: { color: '#64748b' } } } });
+            charts.acc = Highcharts.chart('c-acc', createChartConfig('Acelerómetro (G)', [{ name: 'X', color: '#ef4444', data: [] }, { name: 'Y', color: '#22c55e', data: [] }, { name: 'Z', color: '#3b82f6', data: [] }]));
+            charts.gyro = Highcharts.chart('c-gyro', createChartConfig('Giroscopio (°/s)', [{ name: 'X', color: '#f59e0b', data: [] }, { name: 'Y', color: '#8b5cf6', data: [] }, { name: 'Z', color: '#06b6d4', data: [] }]));
+        } else {
+            console.error("Highcharts no está definido. No se pudieron inicializar los gráficos.");
+            setTimeout(() => {
+                log("Error: No se pudo cargar la librería de gráficos (Highcharts). Comprueba tu conexión a internet o si el navegador bloquea scripts CDN en archivos locales.", "warning");
+            }, 1000);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', initCharts);
 
     function processPhysData(tEsp, ax, ay, az, gx, gy, gz) {
         if (!dataStarted) {
@@ -347,13 +358,17 @@
             Object.keys(rawData).forEach((k) => rawData[k].splice(0, overflow));
         }
 
-        const shift = charts.acc.series[0].data.length >= currentMaxPoints;
-        charts.acc.series[0].addPoint([now, ax], false, shift);
-        charts.acc.series[1].addPoint([now, ay], false, shift);
-        charts.acc.series[2].addPoint([now, az], true, shift);
-        charts.gyro.series[0].addPoint([now, gx], false, shift);
-        charts.gyro.series[1].addPoint([now, gy], false, shift);
-        charts.gyro.series[2].addPoint([now, gz], true, shift);
+        const shift = (charts.acc && charts.acc.series[0].data.length >= currentMaxPoints) || false;
+        if (charts.acc) {
+            charts.acc.series[0].addPoint([now, ax], false, shift);
+            charts.acc.series[1].addPoint([now, ay], false, shift);
+            charts.acc.series[2].addPoint([now, az], true, shift);
+        }
+        if (charts.gyro) {
+            charts.gyro.series[0].addPoint([now, gx], false, shift);
+            charts.gyro.series[1].addPoint([now, gy], false, shift);
+            charts.gyro.series[2].addPoint([now, gz], true, shift);
+        }
     }
 
     function processUSBString(line) {
@@ -565,7 +580,9 @@
             document.getElementById('m-axis').innerText = dims === 3 ? `Magnitud 3D` : `Magnitud 6D`;
         }
 
-        charts.pca.series[0].setData(signalToAnalyze.map((v, i) => [tSlice[i], v]), true, false, false);
+        if (charts.pca) {
+            charts.pca.series[0].setData(signalToAnalyze.map((v, i) => [tSlice[i], v]), true, false, false);
+        }
 
         const fftLen = Math.pow(2, Math.floor(Math.log2(signalToAnalyze.length)));
         const signal = signalToAnalyze.slice(-fftLen);
@@ -593,8 +610,10 @@
         }
 
         const dominantPeaks = findDominantPeaks(spectrum, fftPeakCount);
-        charts.fft.xAxis[0].setExtremes(fftMin, fftMax, false);
-        charts.fft.series[0].setData(spectrum, true);
+        if (charts.fft) {
+            charts.fft.xAxis[0].setExtremes(fftMin, fftMax, false);
+            charts.fft.series[0].setData(spectrum, true);
+        }
         document.getElementById('m-hz').innerText = dominantPeaks.length ? dominantPeaks.map(([freq]) => `${freq.toFixed(2)} Hz`).join(' | ') : "0.00 Hz";
         document.getElementById('m-pwr').innerText = dominantPeaks.length ? dominantPeaks.map(([, mag]) => mag.toFixed(2)).join(' | ') : "0.00";
     }, 50);
@@ -631,6 +650,20 @@
             log("Solicitando puerto serie USB...", "info");
             usbPort = await navigator.serial.requestPort();
             await usbPort.open({ baudRate: 115200 });
+            
+            // "Vacuna" anti-secuestro de Chrome para ESP32-C3
+            log("Aplicando secuencia de liberación DTR/RTS...", "info");
+            try {
+                await usbPort.setSignals({ dataTerminalReady: true, requestToSend: true });
+                await new Promise(resolve => setTimeout(resolve, 100));
+                await usbPort.setSignals({ dataTerminalReady: false, requestToSend: true });
+                await new Promise(resolve => setTimeout(resolve, 50));
+                await usbPort.setSignals({ dataTerminalReady: true, requestToSend: true });
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (sigErr) {
+                console.warn("[USB] No se pudieron configurar las señales DTR/RTS:", sigErr);
+            }
+
             log("Puerto abierto. Escuchando flujo de datos...", "success");
             resetConnectionState();
 
