@@ -45,7 +45,7 @@ El firmware actual:
 1. Instala el core `esp32` de Espressif.
 2. Selecciona la placa `ESP32C3 Dev Module`.
 3. Instala la librería `DFRobot_BMI160`.
-4. Activa `USB CDC On Boot`.
+4. **Imprescindible:** Activa la opción **`USB CDC On Boot` -> `Enabled`** en el menú *Herramientas* (Tools). Si no lo haces, la clase `Serial` enviará la salida a los pines de UART de hardware y el puerto USB nativo quedará mudo tras el arranque.
 5. Carga `ESP32-C3 Script.ino`.
 
 ## Uso del panel web
@@ -54,12 +54,21 @@ Archivo: [index.html](/c:/Users/josel/Documents/Python%20Scripts/esp32_kinematic
 
 Abre `index.html` en `Chrome` o `Edge`.
 
-### USB
+### USB (Vacuna Anti-Secuestro DTR/RTS)
 
 - Pulsa `USB` y selecciona el puerto.
 - La web abre el puerto a `115200`.
-- No se envían señales `DTR/RTS`, porque en el `ESP32-C3` con USB nativo eso puede provocar reinicios o modo bootloader.
+- **Secuencia de Liberación:** Chrome tiende a abrir el puerto Web Serial forzando `DTR=true` y `RTS=false`, combinación que pone al ESP32-C3 en modo de flasheo perpetuo. Para solucionar esto, el panel ejecuta inmediatamente una secuencia de "vacuna":
+  1. Envía `DTR=true, RTS=true` para liberar el pin `IO0`.
+  2. Envía un pulso de reset físico de 50ms (`DTR=false, RTS=true`).
+  3. Vuelve a `DTR=true, RTS=true` para que el chip reinicie libre y comience la transmisión normal.
+- Si por el cambio de descriptores Windows decide asignar un nuevo puerto COM al iniciar el código de usuario, simplemente recarga la web y conéctate al nuevo puerto COM disponible.
 - El panel acepta tanto el formato nuevo con timestamp como el formato anterior sin timestamp.
+
+### Uso Local / Offline (Highcharts Local)
+
+- Se incluye una copia local de `highcharts.js` en la raíz del proyecto.
+- Esto evita el error de bloqueo de recursos por políticas CORS/origen y caídas de conexión al abrir el archivo directamente como un recurso local (`file://`) en el navegador, permitiendo graficar en tiempo real sin conexión a internet.
 
 ### BLE
 
